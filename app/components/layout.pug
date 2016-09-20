@@ -1,0 +1,18 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='UTF-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no')
+    title=title
+    block favicon
+        link(rel='shortcut icon', href=rootPath + '/assets/images/favicon.ico')
+    block css
+        link(rel='stylesheet', href=rootPath + '/assets/rendered/style.css')
+    block js
+        if ENV == 'development'
+            script(src='http://localhost:35729/livereload.js')
+
+    body
+        div.content
+            div.content-inner
+                block content
