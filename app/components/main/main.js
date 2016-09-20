@@ -5,21 +5,19 @@ import {
     clickerComponent
 } from '../../vue-components';
 
-class Scope {
+class MainScope {
     title          : string;
     components     : Object;
-    componentLoader: Object;
-    constructor(data = {}) {
-        this.title           = 'Vue Test';
-        this.componentLoader = vueComponentLoader([counterComponent, clickerComponent])
+    constructor(components: Object) {
+        this.title      = 'Vue Test';
+        this.components = components;
     }
 }
 
 export default (router: Object) => {
     router.get('/', (req, res, next) => {
-        let scope = new Scope();
-        scope.componentLoader.then((components) => {
-            scope.components = components
+        vueComponentLoader([counterComponent, clickerComponent]).then((components) => {
+            let scope = new MainScope(components);
             console.log(scope);
             res.render('main/main', scope);
         })
