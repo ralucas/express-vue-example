@@ -31,7 +31,7 @@ module.exports = function (grunt) {
         concat: {
             dist: {
                 src: [
-                    'app/components/**/*.scss',
+                    'app/routes/**/*.scss',
                 ],
                 dest: '.sass-cache/build.scss',
             }
@@ -56,8 +56,7 @@ module.exports = function (grunt) {
                 files: [
                     'app.js',
                     'app/**/*.js',
-                    'config/*.js',
-                    '!app/vue-components/**/*.js'
+                    'config/*.js'
                 ],
                 tasks: ['develop', 'delayed-livereload']
             },
@@ -69,7 +68,7 @@ module.exports = function (grunt) {
             },
             css: {
                 files: [
-                    'app/components/**/*.scss',
+                    'app/routes/**/*.scss',
                     'app/assets/**/*.scss'
                 ],
                 tasks: ['concat','sass'],
@@ -79,8 +78,8 @@ module.exports = function (grunt) {
             },
             views: {
                 files: [
-                    'app/components/*.pug',
-                    'app/components/**/*.pug'
+                    'app/routes/*.pug',
+                    'app/routes/**/*.pug'
                 ],
                 tasks: ['delayed-livereload']
             }

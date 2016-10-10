@@ -20,10 +20,10 @@ export default (app: Object, config: Object) => {
     app.locals.ENV_DEVELOPMENT = (env === 'development');
     app.locals.rootPath        = process.env.ROOT_PATH;
 
-    app.set('views', config.root + '/components');
+    app.set('views', config.root + '/routes');
 
     app.set('vue', {
-        layoutsDir: 'app/components/',
+        layoutsDir: 'app/routes/',
         defaultLayout: 'layout'
     });
     app.engine('vue', expressVue);
@@ -44,7 +44,7 @@ export default (app: Object, config: Object) => {
     app.use(app.locals.rootPath, express.static(config.root))
     app.use('/', router);
 
-    let controllers = glob.sync(config.root + '/components/**/*.js');
+    let controllers = glob.sync(config.root + '/routes/**/*.js');
 
     controllers.forEach(function (controller: string) {
         module.require(controller).default(router)
