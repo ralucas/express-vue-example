@@ -1,25 +1,17 @@
 // @flow
-import {
-    vueComponentLoader,
-    counterComponent,
-    clickerComponent
-} from '../../vue-components';
-
 class MainScope {
-    title          : string;
-    components     : Object;
-    constructor(components: Object) {
-        this.title      = 'Vue Test';
-        this.components = components;
+    title : string;
+    name  : string;
+    constructor() {
+        this.title = 'Vue Test';
+        this.name  = 'Daniel'
     }
 }
 
 export default (router: Object) => {
     router.get('/', (req, res, next) => {
-        vueComponentLoader([counterComponent, clickerComponent]).then((components) => {
-            let scope = new MainScope(components);
-            console.log(scope);
-            res.render('main/main', scope);
-        })
+        let scope = new MainScope();
+        console.log(scope);
+        res.render('main/main', scope);
     })
 };

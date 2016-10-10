@@ -12,11 +12,6 @@ module.exports = function (grunt) {
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
-        run: {
-            webpack: {
-                exec: 'npm run build-client && npm run build-server'
-            },
-        },
         env : {
             dev : {
                 src : 'dev.env'
@@ -66,19 +61,11 @@ module.exports = function (grunt) {
                 ],
                 tasks: ['develop', 'delayed-livereload']
             },
-            webpack: {
-                files: [
-                    'webpack/*.js',
-                    'app/vue-components/**/*.js',
-                    '!app/vue-components/**/bundle/*.js'
-                ],
-                tasks: ['run:webpack']
-            },
             vue: {
                 files: [
                     'app/**/*.vue'
                 ],
-                tasks: ['run:webpack', 'develop', 'delayed-livereload']
+                tasks: ['develop', 'delayed-livereload']
             },
             css: {
                 files: [
@@ -120,7 +107,6 @@ module.exports = function (grunt) {
 
     grunt.registerTask('default', [
         'env:dev',
-        'run:webpack',
         'concat',
         'sass',
         'develop',
@@ -128,7 +114,6 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('build', [
-        'run:webpack',
         'concat',
         'sass'
     ]);

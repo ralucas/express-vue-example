@@ -6,6 +6,7 @@ import bodyParser     from 'body-parser';
 import compress       from 'compression';
 import methodOverride from 'method-override';
 import validator      from 'express-validator';
+import expressVue     from 'express-vue';
 
 type err = {
     status: number
@@ -20,7 +21,13 @@ export default (app: Object, config: Object) => {
     app.locals.rootPath        = process.env.ROOT_PATH;
 
     app.set('views', config.root + '/components');
-    app.set('view engine', 'pug');
+
+    app.set('vue', {
+        layoutsDir: 'app/components/',
+        defaultLayout: 'layout'
+    });
+    app.engine('vue', expressVue);
+    app.set('view engine', 'vue');
 
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({
@@ -40,7 +47,7 @@ export default (app: Object, config: Object) => {
     let controllers = glob.sync(config.root + '/components/**/*.js');
 
     controllers.forEach(function (controller: string) {
-        require(controller).default(router)
+        module.require(controller).default(router)
     });
 
     app.use((req, res, next) => {
