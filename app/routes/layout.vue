@@ -17,7 +17,11 @@
 
 <script>
 export default {
-    data: {},
+    data: function() {
+        return {
+            thing: true
+        }
+    },
     components: {}
 }
 </script>

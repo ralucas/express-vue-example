@@ -6,7 +6,7 @@ import bodyParser     from 'body-parser';
 import compress       from 'compression';
 import methodOverride from 'method-override';
 import validator      from 'express-validator';
-import expressVue     from './express-vue';
+import expressVue     from './express-vue/index';
 
 type err = {
     status: number
@@ -23,8 +23,9 @@ export default (app: Object, config: Object) => {
     app.set('views', config.root + '/routes');
 
     app.set('vue', {
-        layoutsDir: 'app/routes/',
-        componentsDir: 'app/components/',
+        rootPath: __dirname + '/',
+        layoutsDir: 'routes/',
+        componentsDir: 'components/',
         defaultLayout: 'layout'
     });
     app.engine('vue', expressVue);
