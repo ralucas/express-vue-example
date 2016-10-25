@@ -1,5 +1,6 @@
 <template>
-    <div class="clicker-view">
+    <div>
+        <myheader></myheader>
         <h1>{{name}}</h1>
         <input type="text" v-model="name" placeholder="edit me">
         <h2>age: {{age}} <button @click="plus">+1</button></h2>
@@ -22,6 +23,6 @@ export default {
         plus: function() {
             this.age++;
         },
-    },
+    }
 };
 </script>

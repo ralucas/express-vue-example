@@ -1,16 +1,17 @@
 <template>
-    <div>A custom component!</div>
+    <div>
+        A custom component!
+        <span v-for="n in dogs">🐶</span>
+    </div>
 </template>
 
 <script>
 export default {
-    data () {
-        return {}
-    },
-    computed: {},
-    mounted () {},
-    methods: {},
-    components: {}
+    data: function () {
+        return {
+            dogs: 3
+        }
+    }
 }
 </script>
 

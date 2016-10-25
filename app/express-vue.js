@@ -5,7 +5,7 @@ import fs      from 'fs';
 import phantom from 'phantom';
 
 const renderer = require('vue-server-renderer').createRenderer()
-global.Vue     = require('vue')
+
 const htmlMinifier = minify.minify;
 const htmlRegex    = /(<template>)([\s\S]*?)(<\/template>)/gm;
 const scriptRegex  = /(export default {)([\s\S]*?)(^};?$)/gm;
@@ -15,6 +15,7 @@ const titleRegex   = /{{{title}}}/igm;
 const elRegex      = /[#.]/g
 const types        = {
     COMPONENT: 'COMPONENT',
+    SUBCOMPONENT: 'SUBCOMPONENT',
     LAYOUT: 'LAYOUT'
 };
 let defaults = {
@@ -33,12 +34,12 @@ function expressVue(componentPath, options, callback) {
     defaults.layoutPath = defaults.layoutsDir + defaults.defaultLayout + '.vue';
     defaults.options = options;
 
-    let componentArray = [layoutParser(defaults.layoutPath), componentParser(componentPath)]
+    let componentArray = [layoutParser(defaults.layoutPath), componentParser(componentPath, false)]
 
     if (defaults.options.components) {
         for (var component in defaults.options.components) {
             if (defaults.options.components.hasOwnProperty(component)) {
-                componentArray.push(componentParser(__dirname + '/../' + defaults.componentsDir + defaults.options.components[component] + '.vue'));
+                componentArray.push(componentParser(__dirname + '/../' + defaults.componentsDir + defaults.options.components[component] + '.vue', true));
             }
         }
     }
@@ -52,33 +53,28 @@ function expressVue(componentPath, options, callback) {
                     layout = component;
                     break;
                 case types.COMPONENT:
-
-                    if (component.script.template != undefined && layout.script) {
-                        if (layout.script.template == undefined) {
-                            layout.script.template = component.script.template
-                        } else {
-                            layout.script.template += component.script.template
-                        }
-                    }
-                    if (layout.script) {
+                    layout.template = layout.template.replace(appRegex, `<div id="app">${component.script.template}</div>`);;
+                    layout.script   = component.script;
+                    break;
+                case types.SUBCOMPONENT:
+                    if (layout.script.components) {
+                        layout.script.components[component.name] = component.script;
+                    } else {
+                        layout.script.components = {};
                         layout.script.components[component.name] = component.script;
                     }
                     break;
             }
         }
-
-        layout.script.template = '<div id="app"><myheaderVue></myheaderVue><mainVue></mainVue></div>'
-
-        console.log(layout.script.components.mainVue);
-
-        renderer.renderToString(createApp(layout.script.components.mainVue), function (error, renderedHtml) {
-                const html = layout.template.replace('<div class="app"></div>', `<div id="app">${renderedHtml}</div>`)
-                .replace('{{{script}}}', renderedScript(layout.script.components.mainVue))
-                .replace(titleRegex, layout.script.data.title);
-
-                callback(null, html);
-            }
-        )
+        let renderedScriptString = renderedScript(layout.script);
+        global.Vue = require('vue')
+        renderer.renderToString(createApp(layout.script), function (error, renderedHtml) {
+            let html = layout.template.replace(appRegex, `<div id="app">${renderedHtml}</div>`);
+            html = html.replace('{{{script}}}', renderedScriptString);
+            console.log(renderedHtml);
+            html = html.replace(titleRegex, layout.script.data.title || defaults.options.title);
+            callback(null, html);
+        })
 
     }, function(error) {
         callback(new Error(error));
@@ -131,7 +127,7 @@ function layoutParser(layoutPath) {
     });
 }
 
-function componentParser(templatePath) {
+function componentParser(templatePath, isSubComponent) {
     return new Promise(function(resolve, reject) {
         fs.readFile(templatePath, function (err, content) {
             if (err) {
@@ -147,8 +143,9 @@ function componentParser(templatePath) {
             componentScript.template = body;
 
             resolve({
-                type: types.COMPONENT,
-                name: templatePath.match(/\w*\.vue/g)[0].replace('\.vue', 'Vue'),
+                type: isSubComponent ? types.SUBCOMPONENT : types.COMPONENT,
+                component: isSubComponent,
+                name: templatePath.match(/\w*\.vue/g)[0].replace('\.vue', ''),
                 script: componentScript
             });
         });

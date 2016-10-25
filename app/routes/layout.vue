@@ -8,21 +8,16 @@
             <script src="assets/scripts/vue.js" charset="utf-8"></script>
         </head>
         <body>
-            <div class="content">
-                <myheader></myheader>
-                <div class="app"></div>
-            </div>
+            {{{app}}}
             {{{script}}}
-            <script>app.$mount('.content')</script>
+            <script>app.$mount('#app')</script>
         </body>
     </html>
 </template>
 
 <script>
 export default {
-    data: {
-        title: '$parent'.title
-    },
+    data: {},
     components: {}
 }
 </script>
