@@ -5,6 +5,7 @@
         <input type="text" v-model="name" placeholder="edit me">
         <h2>age: {{age}} <button @click="plus">+1</button></h2>
         <span v-for="n in age">🎂</span>
+        <myfooter></myfooter>
     </div>
 </template>
 

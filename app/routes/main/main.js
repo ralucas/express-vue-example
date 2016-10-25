@@ -6,7 +6,7 @@ class MainScope {
     constructor() {
         this.title = 'Vue Test';
         this.name  = 'Daniel';
-        this.components = ['myheader']
+        this.components = ['myheader', 'myfooter']
     }
 }
 

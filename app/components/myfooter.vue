@@ -1,15 +1,15 @@
 <template>
-    <header>
-        A custom Header!
-        <span v-for="n in dogs">🐶</span>
-    </header>
+    <footer>
+        A custom footer!
+        <span v-for="n in cats">😻</span>
+    </footer>
 </template>
 
 <script>
 export default {
     data: function () {
         return {
-            dogs: 3
+            cats: 3
         }
     }
 }
