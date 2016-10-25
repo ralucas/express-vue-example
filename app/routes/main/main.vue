@@ -3,24 +3,23 @@
         <h1>{{name}}</h1>
         <input type="text" v-model="name" placeholder="edit me">
         <h2>age: {{age}} <button @click="plus">+1</button></h2>
+        <span v-for="n in age">🎂</span>
     </div>
 </template>
 
 <script>
 export default {
-    el: '.clicker-view',
-    data() {
+    data: function() {
         return {
             name: '$parent'.name,
-            age: 0,
+            age: 10,
         }
     },
-    created() {
+    created: function() {
         console.log('created > ' + this.age);
-        ++this.age;
     },
     methods: {
-        plus() {
+        plus: function() {
             this.age++;
         },
     },
