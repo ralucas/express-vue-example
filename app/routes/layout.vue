@@ -16,14 +16,6 @@
 </template>
 
 <script>
-export default {
-    data: function() {
-        return {
-            thing: true
-        }
-    },
-    components: {}
-}
 </script>
 
 <style>
