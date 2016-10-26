@@ -16,14 +16,14 @@ function expressVue(componentPath, options, callback) {
 
     let componentArray = [
         layoutParser(defaults.layoutPath, defaults),
-        componentParser(componentPath, defaults, false)
+        componentParser(componentPath, defaults, true)
     ]
 
     if (defaults.options.components) {
         for (var component in defaults.options.components) {
             if (defaults.options.components.hasOwnProperty(component)) {
                 const componentFile = defaults.componentsDir + defaults.options.components[component] + '.vue'
-                componentArray.push(componentParser(componentFile, defaults, true));
+                componentArray.push(componentParser(componentFile, defaults, false));
             }
         }
     }

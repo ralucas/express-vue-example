@@ -4,7 +4,7 @@ import {Types} from '../defaults';
 import {scriptToString} from '../utils';
 
 const htmlMinifier = minify.minify;
-const htmlRegex    = /(<template>)([\s\S]*?)(<\/template>)/gm;
+const htmlRegex    = /(<template?.*>)([\s\S]*?)(<\/template>)/gm;
 const scriptRegex  = /(<script?.*>)([\s\S]*?)(<\/script>)/gm;
 const dataRegex    = /(\'\$parent\').(\w*)/gm;
 const types        = new Types();
@@ -24,34 +24,34 @@ function htmlParser(body, minify) {
     return bodyString;
 }
 
-function dataMatcher(vueData, contollerData) {
-    for (var key in vueData) {
-        if (vueData.hasOwnProperty(key)) {
-            if (contollerData.hasOwnProperty(key) && contollerData[key] != undefined) {
-                let tempObject = {}
-                for (var objectKey in vueData) {
-                    tempObject[objectKey] = vueData[objectKey]
+function dataMatcher(vueData, controllerData, isComponent) {
+    let obj = {}
+    for (var controllerDataKey in controllerData) {
+        if (controllerData.hasOwnProperty(controllerDataKey)) {
+            for (var vueDataKey in vueData) {
+                if (vueData.hasOwnProperty(vueDataKey)) {
+                    if (isComponent) {
+                        obj[controllerDataKey] = controllerData[controllerDataKey]
+                        obj[vueDataKey] = vueData[vueDataKey]
+                    } else {
+                        obj[vueDataKey] = vueData[vueDataKey]
+                    }
                 }
-                for (var objectKey in contollerData) {
-                    tempObject[objectKey] = contollerData[objectKey]
-                }
-                const output = `data: () => {return ${JSON.stringify(tempObject)};};`
-                return output;
-            } else {
-                const output = `data: () => {return ${JSON.stringify(vueData)};};`
-                return output
             }
         }
     }
+    const output = `data: () => {return ${JSON.stringify(obj)};};`
+    console.log(output);
+    return output;
 }
 
-function dataParser(script, defaults) {
+function dataParser(script, defaults, isComponent) {
     let finalScript = {}
     for (var element in script) {
         if (script.hasOwnProperty(element)) {
             if (element === 'data') {
                 const data = script.data()
-                const output = dataMatcher(data, defaults.options.data);
+                const output = dataMatcher(data, defaults.options.data, isComponent);
                 finalScript[element] = eval(output);
             } else {
                 finalScript[element] = script[element]
@@ -61,12 +61,12 @@ function dataParser(script, defaults) {
     return finalScript;
 }
 
-function scriptParser(script, defaults) {
+function scriptParser(script, defaults, isComponent) {
     let scriptString = script.match(scriptRegex)[0].replace(scriptRegex, '$2');
     let babelScript  = require("babel-core").transform(scriptString, {"presets": ["es2015"]}).code
     let evalScript   = eval(babelScript);
     // console.log(evalScript.data());
-    let finalScript  = dataParser(evalScript, defaults)
+    let finalScript  = dataParser(evalScript, defaults, isComponent)
     return finalScript;
 }
 
@@ -90,7 +90,7 @@ function layoutParser(layoutPath, defaults) {
     });
 }
 
-function componentParser(templatePath, defaults, isSubComponent) {
+function componentParser(templatePath, defaults, isComponent) {
     return new Promise(function(resolve, reject) {
         fs.readFile(templatePath, function (err, content) {
             if (err) {
@@ -101,13 +101,13 @@ function componentParser(templatePath, defaults, isSubComponent) {
 
             const body   = htmlParser(componentString, true);
             componentString = componentString.replace(htmlRegex, '')
-            const script = scriptParser(componentString, defaults);
+            const script = scriptParser(componentString, defaults, isComponent);
 
             let componentScript = script;
             componentScript.template = body;
 
             resolve({
-                type: isSubComponent ? types.SUBCOMPONENT : types.COMPONENT,
+                type: isComponent ? types.COMPONENT : types.SUBCOMPONENT,
                 name: templatePath.match(/\w*\.vue/g)[0].replace('\.vue', ''),
                 script: componentScript
             });
