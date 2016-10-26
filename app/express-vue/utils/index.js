@@ -3,9 +3,11 @@ import {
     layoutUtil,
     renderHtmlUtil
 } from './render';
+import scriptToString from './string';
 
 export {
     renderUtil,
     layoutUtil,
-    renderHtmlUtil
+    renderHtmlUtil,
+    scriptToString
 }

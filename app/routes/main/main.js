@@ -2,10 +2,14 @@
 class MainScope {
     title : string;
     name  : string;
+    data  : Object;
     components: [string];
     constructor() {
+        this.data = {
+            name: 'Daniels',
+            age: 34
+        };
         this.title = 'Vue Test';
-        this.name  = 'Daniel';
         this.components = ['myheader', 'myfooter']
     }
 }

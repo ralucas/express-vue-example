@@ -13,7 +13,7 @@
 export default {
     data: function() {
         return {
-            name: '$parent'.name,
+            name: 'george',
             age: 10,
         }
     },

@@ -1,6 +1,7 @@
 import fs      from 'fs';
 import minify  from 'html-minifier'
 import {Types} from '../defaults';
+import {scriptToString} from '../utils';
 
 const htmlMinifier = minify.minify;
 const htmlRegex    = /(<template>)([\s\S]*?)(<\/template>)/gm;
@@ -23,15 +24,49 @@ function htmlParser(body, minify) {
     return bodyString;
 }
 
+function dataMatcher(vueData, contollerData) {
+    for (var key in vueData) {
+        if (vueData.hasOwnProperty(key)) {
+            if (contollerData.hasOwnProperty(key) && contollerData[key] != undefined) {
+                let tempObject = {}
+                for (var objectKey in vueData) {
+                    if (vueData.hasOwnProperty(objectKey)) {
+                        tempObject[objectKey] = contollerData[objectKey]
+                    }
+                }
+                const output = `data: () => {return ${JSON.stringify(tempObject)};};`
+                return output;
+            } else {
+                const output = `data: () => {return ${JSON.stringify(vueData)};};`
+                return output
+            }
+        }
+    }
+}
+
+function dataParser(script, defaults) {
+    let finalScript = {}
+    for (var element in script) {
+        if (script.hasOwnProperty(element)) {
+            if (element === 'data') {
+                const data = script.data()
+                const output = dataMatcher(data, defaults.options.data);
+                finalScript[element] = eval(output);
+            } else {
+                finalScript[element] = script[element]
+            }
+        }
+    }
+    return finalScript;
+}
+
 function scriptParser(script, defaults) {
     let scriptString = script.match(scriptRegex)[0];
-    if (scriptString) {
-        scriptString = scriptString.replace(scriptRegex, '({$2})')
-        .replace(dataRegex, function(match, p1, p2) {
-            return JSON.stringify(defaults.options[p2]);
-        });
-    }
-    return scriptString;
+    let babelScript  = require("babel-core").transform(scriptString, {"presets": ["es2015"]}).code
+    let evalScript   = eval(babelScript);
+    let finalScript  = dataParser(evalScript, defaults)
+    // console.log(finalScript.data());
+    return finalScript;
 }
 
 function layoutParser(layoutPath, defaults) {
@@ -45,11 +80,10 @@ function layoutParser(layoutPath, defaults) {
 
             const body   = htmlParser(layoutString);
             const script = scriptParser(layoutString, defaults);
-
             resolve({
                 type: types.LAYOUT,
                 template: body,
-                script: eval(script)
+                script: script
             });
         });
     });
@@ -67,7 +101,7 @@ function componentParser(templatePath, defaults, isSubComponent) {
             const body   = htmlParser(componentString, true);
             const script = scriptParser(componentString, defaults);
 
-            let componentScript = eval(script);
+            let componentScript = script;
             componentScript.template = body;
 
             resolve({
