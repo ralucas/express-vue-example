@@ -24,34 +24,38 @@ function htmlParser(body, minify) {
     return bodyString;
 }
 
-function dataMatcher(vueData, controllerData, isComponent) {
+function dataMatcher(vueData, controllerData, type) {
     let obj = {}
     for (var controllerDataKey in controllerData) {
         if (controllerData.hasOwnProperty(controllerDataKey)) {
             for (var vueDataKey in vueData) {
                 if (vueData.hasOwnProperty(vueDataKey)) {
-                    if (isComponent) {
-                        obj[controllerDataKey] = controllerData[controllerDataKey]
-                        obj[vueDataKey] = vueData[vueDataKey]
-                    } else {
-                        obj[vueDataKey] = vueData[vueDataKey]
+                    switch (type) {
+                        case types.LAYOUT:
+                            break;
+                        case types.COMPONENT:
+                            obj[controllerDataKey] = controllerData[controllerDataKey]
+                            obj[vueDataKey] = vueData[vueDataKey]
+                            break;
+                        case types.SUBCOMPONENT:
+                            obj[vueDataKey] = vueData[vueDataKey]
+                            break;
                     }
                 }
             }
         }
     }
     const output = `data: () => {return ${JSON.stringify(obj)};};`
-    console.log(output);
     return output;
 }
 
-function dataParser(script, defaults, isComponent) {
+function dataParser(script, defaults, type) {
     let finalScript = {}
     for (var element in script) {
         if (script.hasOwnProperty(element)) {
             if (element === 'data') {
                 const data = script.data()
-                const output = dataMatcher(data, defaults.options.data, isComponent);
+                const output = dataMatcher(data, defaults.options.data, type);
                 finalScript[element] = eval(output);
             } else {
                 finalScript[element] = script[element]
@@ -61,16 +65,16 @@ function dataParser(script, defaults, isComponent) {
     return finalScript;
 }
 
-function scriptParser(script, defaults, isComponent) {
+function scriptParser(script, defaults, type) {
     let scriptString = script.match(scriptRegex)[0].replace(scriptRegex, '$2');
     let babelScript  = require("babel-core").transform(scriptString, {"presets": ["es2015"]}).code
     let evalScript   = eval(babelScript);
     // console.log(evalScript.data());
-    let finalScript  = dataParser(evalScript, defaults, isComponent)
+    let finalScript  = dataParser(evalScript, defaults, type)
     return finalScript;
 }
 
-function layoutParser(layoutPath, defaults) {
+function layoutParser(layoutPath, defaults, type) {
 
     return new Promise(function(resolve, reject) {
         fs.readFile(layoutPath, function (err, content) {
@@ -80,9 +84,9 @@ function layoutParser(layoutPath, defaults) {
             let layoutString = content.toString();
             const body   = htmlParser(layoutString);
             layoutString = layoutString.replace(htmlRegex, '')
-            const script = scriptParser(layoutString, defaults);
+            const script = scriptParser(layoutString, defaults, type);
             resolve({
-                type: types.LAYOUT,
+                type: type,
                 template: body,
                 script: script
             });
@@ -90,7 +94,7 @@ function layoutParser(layoutPath, defaults) {
     });
 }
 
-function componentParser(templatePath, defaults, isComponent) {
+function componentParser(templatePath, defaults, type) {
     return new Promise(function(resolve, reject) {
         fs.readFile(templatePath, function (err, content) {
             if (err) {
@@ -99,15 +103,16 @@ function componentParser(templatePath, defaults, isComponent) {
 
             let componentString = content.toString();
 
+
             const body   = htmlParser(componentString, true);
             componentString = componentString.replace(htmlRegex, '')
-            const script = scriptParser(componentString, defaults, isComponent);
+            const script = scriptParser(componentString, defaults, type);
 
             let componentScript = script;
             componentScript.template = body;
 
             resolve({
-                type: isComponent ? types.COMPONENT : types.SUBCOMPONENT,
+                type: type,
                 name: templatePath.match(/\w*\.vue/g)[0].replace('\.vue', ''),
                 script: componentScript
             });
