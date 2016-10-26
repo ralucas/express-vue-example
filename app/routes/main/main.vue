@@ -10,11 +10,13 @@
 </template>
 
 <script>
+var moment = require('moment');
 export default {
     data: function() {
         return {
             name: 'george',
             age: 10,
+            time: moment().toISOString()
         }
     },
     created: function() {

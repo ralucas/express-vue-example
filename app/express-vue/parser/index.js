@@ -5,7 +5,7 @@ import {scriptToString} from '../utils';
 
 const htmlMinifier = minify.minify;
 const htmlRegex    = /(<template>)([\s\S]*?)(<\/template>)/gm;
-const scriptRegex  = /(export default {)([\s\S]*?)(^};?$)/gm;
+const scriptRegex  = /(<script?.*>)([\s\S]*?)(<\/script>)/gm;
 const dataRegex    = /(\'\$parent\').(\w*)/gm;
 const types        = new Types();
 
@@ -30,9 +30,10 @@ function dataMatcher(vueData, contollerData) {
             if (contollerData.hasOwnProperty(key) && contollerData[key] != undefined) {
                 let tempObject = {}
                 for (var objectKey in vueData) {
-                    if (vueData.hasOwnProperty(objectKey)) {
-                        tempObject[objectKey] = contollerData[objectKey]
-                    }
+                    tempObject[objectKey] = vueData[objectKey]
+                }
+                for (var objectKey in contollerData) {
+                    tempObject[objectKey] = contollerData[objectKey]
                 }
                 const output = `data: () => {return ${JSON.stringify(tempObject)};};`
                 return output;
@@ -61,11 +62,11 @@ function dataParser(script, defaults) {
 }
 
 function scriptParser(script, defaults) {
-    let scriptString = script.match(scriptRegex)[0];
+    let scriptString = script.match(scriptRegex)[0].replace(scriptRegex, '$2');
     let babelScript  = require("babel-core").transform(scriptString, {"presets": ["es2015"]}).code
     let evalScript   = eval(babelScript);
+    // console.log(evalScript.data());
     let finalScript  = dataParser(evalScript, defaults)
-    // console.log(finalScript.data());
     return finalScript;
 }
 
@@ -76,9 +77,9 @@ function layoutParser(layoutPath, defaults) {
             if (err) {
                 reject(new Error(err));
             }
-            const layoutString = content.toString();
-
+            let layoutString = content.toString();
             const body   = htmlParser(layoutString);
+            layoutString = layoutString.replace(htmlRegex, '')
             const script = scriptParser(layoutString, defaults);
             resolve({
                 type: types.LAYOUT,
@@ -96,9 +97,10 @@ function componentParser(templatePath, defaults, isSubComponent) {
                 reject(new Error(err));
             }
 
-            const componentString = content.toString();
+            let componentString = content.toString();
 
             const body   = htmlParser(componentString, true);
+            componentString = componentString.replace(htmlRegex, '')
             const script = scriptParser(componentString, defaults);
 
             let componentScript = script;
