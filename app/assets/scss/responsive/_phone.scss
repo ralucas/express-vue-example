@@ -1,0 +1,53 @@
+@mixin phone {
+    html {
+        body {
+            width: auto;
+            .content {
+                margin: 0px;
+                .content-inner {
+                    padding:30px 15px;
+                    min-width: auto;
+                    max-width: auto;
+                }
+
+            }
+        }
+    }
+    .button {
+        font-size: 1em;
+        padding:15px;
+    }
+}
+/* ----------- X-Small ----------- */
+
+/* Portrait and Landscape */
+@media (min-device-width: 0px)
+and (max-device-width: 480px) {
+    @include phone;
+}
+
+/* ----------- Small ----------- */
+
+/* Portrait and Landscape */
+@media (min-device-width: 0px)
+and (max-device-width: 568px) {
+    @include phone;
+}
+
+
+/* ----------- Medium ----------- */
+
+/* Portrait and Landscape */
+@media (min-device-width: 375px)
+and (max-device-width: 667px) {
+    @include phone;
+}
+
+/* ----------- Large ----------- */
+
+/* Portrait and Landscape */
+@media (min-device-width: 414px)
+and (max-device-width: 736px)
+and (-webkit-min-device-pixel-ratio: 3) {
+    @include phone;
+}

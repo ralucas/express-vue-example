@@ -1,0 +1,21 @@
+@import 'app/assets/scss/variables';
+@import 'app/assets/scss/grid';
+@import 'app/assets/scss/fonts';
+
+html {
+    background: $background-color;
+    body {
+        pre {
+            white-space:inherit;
+            margin: 0;
+            font-size: 10px;
+        }
+        .text-center {
+            text-align: center;
+            justify-content: center;
+            flex: 1 1 auto;
+        }
+    }
+}
+
+@import 'app/assets/scss/responsive/phone';

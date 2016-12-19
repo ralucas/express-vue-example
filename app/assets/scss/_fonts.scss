@@ -1,0 +1,27 @@
+html {
+    color: $font-color;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    color: $font-color;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+h1, h2, h3 {
+    color: $font-color;
+    font-family: 'Helvetica Neue', sans-serif;
+    font-weight: bold;
+}
+
+p {
+    color: $font-color;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+a {
+    color: $font-color;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+}
