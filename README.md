@@ -22,3 +22,6 @@ Requires:
 
 **Run**
 `grunt`
+
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/danmademe/express-vue-example.svg)](https://greenkeeper.io/)
