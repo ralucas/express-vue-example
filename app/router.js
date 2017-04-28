@@ -1,4 +1,6 @@
 // @flow
+import path           from 'path';
+
 import express        from 'express';
 import glob           from 'glob';
 import logger         from 'morgan';
@@ -28,6 +30,9 @@ export default (app: Object, config: Object) => {
 
     app.engine('vue', expressVue);
     app.set('view engine', 'vue');
+
+    // Set static files to be served from '/assets'
+    app.use(express.static(path.join(__dirname, 'assets')));
 
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({
